@@ -1,52 +1,52 @@
 import re
 from common.utils import read_file
+from typing import List
+import numpy as np
+
+def p1(input: List[str]) -> int:
+    digits = [re.findall(r"\d", line) for line in input]
+    numbers = [int("".join(digit[0] + digit[-1])) for digit in digits]
+
+    return sum(numbers)
 
 
-def p1(input: list[str]) -> int:
-    digits = []
-    for i in input:
-        integers = [int(x) for x in i if x.isdigit()]
-        digits.append(int(f'{integers[0]}{integers[-1]}'))
+def p2(input: List[str]) -> int:
+    # dictionary with the string representation of the digit as key and the digit as value
+    bla = {
+        'zero': '0',
+        'one': '1',
+        'two': '2',
+        'three': '3',
+        'four': '4',
+        'five': '5',
+        'six':'6',
+        'seven': '7',
+        'eight': '8',
+        'nine': '9',
+        '0': '0',
+        '1': '1',
+        '2': '2',
+        '3': '3',
+        '4': '4',
+        '5': '5',
+        '6': '6',
+        '7': '7',
+        '8': '8',
+        '9': '9'
+    }
 
-    return sum(digits)
+    regex = re.compile(r"(?=(zero|one|two|three|four|five|six|seven|eight|nine|\d))")
+    digits = [regex.findall(line) for line in input]
 
+    # turn strings into digits
+    digits =  [[bla[digit] for digit in line] for line in digits]
 
-words_to_values = {
-    "zero": 0,
-    "one": 1,
-    "two": 2,
-    "three": 3,
-    "four": 4,
-    "five": 5,
-    "six": 6,
-    "seven": 7,
-    "eight": 8,
-    "nine": 9,
-}
+    # join the first and last digit to a number
+    numbers = [int("".join(digit[0] + digit[-1])) for digit in digits]
 
-
-def p2(input: list[str]) -> int:
-    digits = []
-    for line in input:
-        integers = [(int(x), i) for i, x in enumerate(line) if x.isdigit()]
-        # find all matches with words to values:
-        for word, value in words_to_values.items():
-            # Regex to check the word is in the line
-            match = re.finditer(word, line)
-            integers.extend([(value, m.start()) for m in match])
-
-        # Sort the list by the index
-        integers.sort(key=lambda x: x[1])
-
-        # Unwrap list
-        integers = [x[0] for x in integers]
-
-        digits.append(int(f'{integers[0]}{integers[-1]}'))
-
-    return sum(digits)
-
+    return sum(numbers)
 
 if __name__ == "__main__":
     input = read_file("01/input.txt")
-    print(p1(input))
+    # print(p1(input))
     print(p2(input))
