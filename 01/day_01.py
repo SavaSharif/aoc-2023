@@ -11,7 +11,6 @@ def p1(input: List[str]) -> int:
 
 
 def p2(input: List[str]) -> int:
-    # dictionary with the string representation of the digit as key and the digit as value
     bla = {
         'zero': '0',
         'one': '1',
@@ -38,10 +37,7 @@ def p2(input: List[str]) -> int:
     regex = re.compile(r"(?=(zero|one|two|three|four|five|six|seven|eight|nine|\d))")
     digits = [regex.findall(line) for line in input]
 
-    # turn strings into digits
     digits =  [[bla[digit] for digit in line] for line in digits]
-
-    # join the first and last digit to a number
     numbers = [int("".join(digit[0] + digit[-1])) for digit in digits]
 
     return sum(numbers)
