@@ -26,22 +26,21 @@ def p1(input: List[str]) -> int:
             if grid[i][j].isnumeric():
                 numbers.append((i, j))
 
-
     neighboured = []
     # check for each number if it is neighbored by a symbol
     for number in numbers:
         for symbol in symbols:
             if abs(number[0] - symbol[0]) <= 1 and abs(number[1] - symbol[1]) <= 1:
-                # print(number, symbol)
-                neighboured.append((grid[number[0]][number[1]], grid[symbol[0]][symbol[1]]))
-                print(neighboured[-1])
+                print(number, symbol)
+                neighboured.append((number, symbol))
 
-    # sum all numbers, except when the previous number is the same as the current
     sum = 0
-    for i in range(len(neighboured)):
-        if neighboured[i][0] != neighboured[i - 1][0]:
-            sum += int(neighboured[i][0])
-    
+    for i, ((y, x), (ys, xs)) in enumerate(neighboured):
+        (prev_y, prev_x), _ = neighboured[i - 1]
+        # if the y coordinate is the same as the previous one, we are in the same row, if the x coordinate is one more than the previous one, we are in the same column, if the number is also the same, we ignore it
+        if y != prev_y or x != prev_x + 1:
+            sum += int(grid[y][x])
+        
     return sum
             
 if __name__ == "__main__":
