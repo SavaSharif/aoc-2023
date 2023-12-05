@@ -5,10 +5,9 @@ def p1(input: List[str]) -> int:
     seeds = [int(x) for x in input[0].split(" ")[1:]]
     input = input[2:]
 
-    mappings = {}
     while input:
         input = input[1:]
-        seeds = list(mappings.values()) if mappings else seeds # already initialize with the seeds
+        # seeds = list(mappings.values()) if mappings else seeds # already initialize with the seeds
         seed_to_soil = {seed: seed for seed in seeds}
         
         while input:
@@ -21,10 +20,10 @@ def p1(input: List[str]) -> int:
                 if source + i in seeds:
                     seed_to_soil[source + i] = destination + i
 
-        mappings = seed_to_soil
+        seeds = seed_to_soil.values()
 
     # from the last dict, get the lowest value
-    lowest = min(mappings.values())
+    lowest = min(seeds)
     print(lowest)
 
 
