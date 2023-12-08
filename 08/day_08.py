@@ -1,3 +1,4 @@
+from math import gcd
 import networkx as nx
 import re
 from typing import List
@@ -5,115 +6,113 @@ import matplotlib.pyplot as plt
 from common.utils import read_file
 import random
 
+
+class TreeNode:
+    def __init__(self, label):
+        self.label = label
+        self.left = None
+        self.right = None
+
+
+
 def p1(input: List[str]) -> int:
     instructions = list(input.pop(0))
     input.pop(0)
 
     regex = r"(\w+) = \((\w+), (\w+)\)"
- 
+    nodes = {}
+
     root = None
-    destination = None
-    G = nx.Graph()
-    for i, line in enumerate(input):
+    dest = None
+    for line in input:
+        parent, child_l, child_r = re.match(regex, line).groups()
 
-        parent, child_l, child_r = re.findall(regex, line)[0]
-        if i == 0:
-            root = parent
+        if parent not in nodes:
+            nodes[parent] = TreeNode(parent)
+        if child_l not in nodes:
+            nodes[child_l] = TreeNode(child_l)
+        if child_r not in nodes:
+            nodes[child_r] = TreeNode(child_r)
 
-        if i == int(len(input) -1 ):
-            destination = parent
+        nodes[parent].left = nodes[child_l]
+        nodes[parent].right = nodes[child_r]
 
-        G.add_edge(parent, child_l, weight=0)
-        G.add_edge(parent, child_r, weight=1)
+    root = "AAA"
+    dest = "ZZZ"
+    step_count = 0
+    current_node = nodes[root]
+    while current_node.label != dest:
+        for instruction in instructions:
+            current_node = current_node.left if instruction == "L" else current_node.right
+            step_count += 1
+            
+    return step_count
 
-     # Plotting the network
-    pos = nx.spring_layout(G, seed=42)
-    labels = {node: node for node in G.nodes()}
+def p2(input: List[str]) -> int:
+    instructions = list(input.pop(0))
+    input.pop(0)
 
-    nx.draw(G, with_labels=True, labels=labels, node_size=700, node_color='skyblue', font_size=8)
+    regex = r"(\w+) = \((\w+), (\w+)\)"
+    nodes = {}
 
-    plt.title("Network Visualization")
-    plt.show()
+    for line in input:
+        parent, child_l, child_r = re.match(regex, line).groups()
 
-    # tree = nx.bfs_tree(G, root)
+        if parent not in nodes:
+            nodes[parent] = TreeNode(parent)
+        if child_l not in nodes:
+            nodes[child_l] = TreeNode(child_l)
+        if child_r not in nodes:
+            nodes[child_r] = TreeNode(child_r)
+
+        nodes[parent].left = nodes[child_l]
+        nodes[parent].right = nodes[child_r]
+
+    starting_nodes = [node for node in nodes if node.endswith("A")]
+    # starting_nodes = [starting_nodes[5]]
+    print("Created starting nodes: ", starting_nodes)
     
-    # plo
-
-    # # traverse the tree based on the instructions
+    # # now simultaneously walk the tree from all starting nodes. End when each starting node has reached its destination
     # step_count = 0
-    # current_node = root
-    # # while current_node != destination:
+    # # keep going while t
+    # while not all([node.endswith("Z") for node in starting_nodes]):
+    # step_count = 0
     # for instruction in instructions:
-    #     # check if we have any children
-    #     if len(list(tree.neighbors(current_node))) == 0:
-    #         break
-    #     # get edges of the current node with labels
-    #     edges = list(G.edges(current_node, data=True))
-    #     if instruction == "L":
-    #         current_node = edges[0][1]
-    #     else:
-    #         current_node = edges[1][1]
+    #     for i, node in enumerate(starting_nodes):
+    #         if instruction == "L":
+    #             starting_nodes[i] = nodes[node].left.label
+    #             step_count += 1
+    #         elif instruction == "R":
+    #             starting_nodes[i] = nodes[node].right.label
+    #             step_count += 1
+    # print(step_count)
 
-            
+    # root = "AAA"
+    # dest = "ZZZ"
+    step_counts = []
+    for node in starting_nodes:
+        step_count = 0
+        current_node = nodes[node]
+        while not current_node.label.endswith("Z"):
+            for instruction in instructions:
+                current_node = current_node.left if instruction == "L" else current_node.right
+                step_count += 1
+        step_counts.append(step_count)
 
-        
+    print(step_counts)
+
+    lcm = step_counts[0]
+    for i in step_counts[1:]:
+        lcm = lcm * i // gcd(lcm, i)
+    print(lcm)
+
     
-    # return step_count
-
-
-def plot_tree(G, root=None):
-    pos = hierarchy_pos(G, root)
-    # edge_labels = nx.get_edge_attributes(G, 'label')
-    labels = {node: node for node in G.nodes()}
-
-    nx.draw(G, pos, with_labels=True, labels=labels, node_size=700, node_color='skyblue', font_size=8)
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red', font_size=8)
-
-    plt.title("Network Visualization")
-    plt.show()
-    
-def hierarchy_pos(G, root=None, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5):
-    if not nx.is_tree(G):
-        raise TypeError('cannot use hierarchy_pos on a graph that is not a tree')
-
-    if root is None:
-        if isinstance(G, nx.DiGraph):
-            root = next(iter(nx.topological_sort(G)))  #allows back compatibility with nx version 1.11
-        else:
-            root = random.choice(list(G.nodes))
-
-    def _hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5, pos = None, parent = None):
-        '''
-        see hierarchy_pos docstring for most arguments
-
-        pos: a dict saying where all nodes go if they have been assigned
-        parent: parent of this branch. - only affects it if non-directed
-
-        '''
-    
-        if pos is None:
-            pos = {root:(xcenter,vert_loc)}
-        else:
-            pos[root] = (xcenter, vert_loc)
-        children = list(G.neighbors(root))
-        if not isinstance(G, nx.DiGraph) and parent is not None:
-            children.remove(parent)  
-        if len(children)!=0:
-            dx = width/len(children) 
-            nextx = xcenter - width/2 - dx/2
-            for child in children:
-                nextx += dx
-                pos = _hierarchy_pos(G,child, width = dx, vert_gap = vert_gap, 
-                                    vert_loc = vert_loc-vert_gap, xcenter=nextx,
-                                    pos=pos, parent = root)
-        return pos
-
-            
-    return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
 
 if __name__ == "__main__":
+    # 14893 * 19951 * 22199 * 16579 * 17141 * 12083
+    # print(14893 * 19951 * 22199 * 16579 * 17141 * 12083)
     input_data = read_file("08/input.txt")
-    result = p1(input_data)
-    # result = p2(input_data)
+    # result = p1(input_data)
+    result = p2(input_data)
 
-    print(result)
+    # print(result)
