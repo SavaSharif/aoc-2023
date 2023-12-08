@@ -1,19 +1,13 @@
-from math import gcd
-import networkx as nx
 import re
 from typing import List
-import matplotlib.pyplot as plt
 from common.utils import read_file
-import random
-
+import math
 
 class TreeNode:
     def __init__(self, label):
         self.label = label
         self.left = None
         self.right = None
-
-
 
 def p1(input: List[str]) -> int:
     instructions = list(input.pop(0))
@@ -69,26 +63,7 @@ def p2(input: List[str]) -> int:
         nodes[parent].right = nodes[child_r]
 
     starting_nodes = [node for node in nodes if node.endswith("A")]
-    # starting_nodes = [starting_nodes[5]]
-    print("Created starting nodes: ", starting_nodes)
     
-    # # now simultaneously walk the tree from all starting nodes. End when each starting node has reached its destination
-    # step_count = 0
-    # # keep going while t
-    # while not all([node.endswith("Z") for node in starting_nodes]):
-    # step_count = 0
-    # for instruction in instructions:
-    #     for i, node in enumerate(starting_nodes):
-    #         if instruction == "L":
-    #             starting_nodes[i] = nodes[node].left.label
-    #             step_count += 1
-    #         elif instruction == "R":
-    #             starting_nodes[i] = nodes[node].right.label
-    #             step_count += 1
-    # print(step_count)
-
-    # root = "AAA"
-    # dest = "ZZZ"
     step_counts = []
     for node in starting_nodes:
         step_count = 0
@@ -99,20 +74,13 @@ def p2(input: List[str]) -> int:
                 step_count += 1
         step_counts.append(step_count)
 
-    print(step_counts)
-
     lcm = step_counts[0]
     for i in step_counts[1:]:
-        lcm = lcm * i // gcd(lcm, i)
-    print(lcm)
+        lcm = lcm * i // math.gcd(lcm, i)
+    return lcm
 
-    
 
 if __name__ == "__main__":
-    # 14893 * 19951 * 22199 * 16579 * 17141 * 12083
-    # print(14893 * 19951 * 22199 * 16579 * 17141 * 12083)
     input_data = read_file("08/input.txt")
-    # result = p1(input_data)
+    result = p1(input_data)
     result = p2(input_data)
-
-    # print(result)
